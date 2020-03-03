@@ -1,0 +1,36 @@
+import numpy 
+import cv2
+
+slika1 = cv2.imread('kockica.jpg')
+slika2 = cv2.imread('kockica.jpg')
+slika = cv2.imread('kockica.jpg')
+siva = cv2.imread('kockica.jpg',0)
+
+gray = cv2.cvtColor(slika, cv2.COLOR_BGR2GRAY)
+
+cany = cv2.Canny(slika,100,200)
+
+krugovi1 = cv2.HoughCircles(siva,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
+krugovi2 = cv2.HoughCircles(cany,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
+print(krugovi1)
+
+detektovani1 = numpy.uint16(numpy.around(krugovi1))
+detektovani2 = numpy.uint16(numpy.around(krugovi2))
+print(detektovani1)
+
+for(x,y,r) in detektovani1[0,:]:
+    cv2.circle(slika1, (x,y),r, (0,255,0),3)
+
+for(x,y,r) in detektovani2[0,:]:
+    cv2.circle(slika2, (x,y),r, (0,255,0),3)
+
+cv2.imshow('ucitana slika',slika)
+cv2.imshow('detekcija sa sivom',slika1)
+cv2.imshow('detekcija sa kenijem',slika2)
+cv2.imshow('siva',siva)
+cv2.imshow('cany',cany)
+cv2.imshow('fsiva',gray)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
