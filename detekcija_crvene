@@ -1,0 +1,21 @@
+import numpy
+import cv2
+
+slika = cv2.imread('kockica.png')
+
+hsv = cv2.cvtColor(slika, cv2.COLOR_BGR2HSV)
+
+donja_gr = numpy.array([50, 50, 0])
+gornja_gr = numpy.array([255, 255, 255])
+
+maska = cv2.inRange(hsv, donja_gr, gornja_gr)
+
+#res = cv2.bitwise_and(slika, slika, mask = maska)
+
+cv2.imshow('Slika',slika)
+cv2.imshow('HSV',hsv)
+cv2.imshow('Maska',maska)
+#cv2.imshow('Res',res)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
