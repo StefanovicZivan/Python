@@ -1,0 +1,83 @@
+import numpy as np
+import cv2 as cv
+import math
+
+
+image = cv.imread('Kockica.png', 0)
+imageBlur = cv.medianBlur(image,5)
+edge = cv.Canny(imageBlur, 100, 200)
+
+#print(len(edge))
+#print(len(edge[1]))
+
+#cv.imshow('Original grayscale image', image)
+#cv.imshow('Edge detection result', edge)
+#cv.waitKey(0)
+#cv.destroyAllWindows()
+
+acc = np.zeros((186, 241))
+
+e = 0
+for y in range(0, 186):
+    e += 1
+    print("gotova linija",e)
+    for x in range(0, 241):
+        if edge[y, x] != 0:
+            for theta in range(0, 360):
+                for r in range(11, 13):
+                    a = np.uint16(x - r * math.cos(theta * math.pi / 180))
+                    b = np.uint16(y - r * math.sin(theta * math.pi / 180))
+                    if a < 240 and b < 185:
+                        acc[b, a] += 1
+
+print("gotova matrica akumulacije")
+
+num_circles = 0
+prev_sum = 0
+flag = 1
+while flag:
+    num_circles += 1
+    max_el = 0
+    for y in range(0, 186):
+        for x in range(0, 241):
+            if max_el < acc[y, x]:
+                max_el = acc[y, x]
+                ym = y
+                xm = x
+    
+    print("najveci el: ",max_el)
+    print("y=", ym)
+    print("x=", xm)
+        
+    suma = 0          
+    for y in range(ym - 5, ym + 6):
+        for x in range(xm - 5, xm + 5 ):
+            suma += acc[y, x] 
+            acc[y, x] = 0
+    print("suma matrice 10x10:", suma)
+    
+    if prev_sum * 0.85 > suma:
+        flag = 0
+        num_circles -= 1 
+    prev_sum = suma       
+
+print("Broj krugova na kocki je ", num_circles)
+
+
+
+
+maxElement = np.amax(acc)
+print('Max_element1 : ', maxElement)
+result = np.where(acc == np.amax(acc)) 
+print('Returned tuple of arrays :', result)
+
+
+edge[76,123] = 254
+edge[76,96] = 254
+edge[76,148] = 254
+edge[125,123] = 254
+edge[125,148] = 254
+edge[125,96] = 254
+cv.imshow('Edge sa centrima', edge)
+cv.waitKey(0)
+cv.destroyAllWindows()
