@@ -1,0 +1,73 @@
+import numpy as np
+import cv2 as cv
+import math
+
+
+image = cv.imread('Kockica11.png', 0)
+imageBlur = cv.medianBlur(image,5)
+edge = cv.Canny(imageBlur, 100, 200)
+
+length = len(edge)
+width = len(edge[1])
+
+r_min = 9
+r_max = 11
+
+max_el = 0
+prev_max_el = 0
+for r in range(r_min, r_max +1):
+    acc = np.zeros((length, width))
+    for y in range(0, length):
+        for x in range(0, width):
+            if edge[y, x] != 0:
+                for theta in range(0, 360):
+                    a = np.uint16(x - r * math.cos(theta * math.pi / 180))
+                    b = np.uint16(y - r * math.sin(theta * math.pi / 180))
+                    if a < width - 1 and b < length -1:
+                        acc[b, a] += 1
+
+    print("gotova matrica akumulacije")
+    
+    for y in range(0, length):
+        for x in range(0, width):
+            if max_el < acc[y, x]:
+                max_el = acc[y, x]
+                
+    if prev_max_el < max_el:            
+        right_acc = acc
+        
+    print("max_el= ",max_el)
+    prev_max_el = max_el
+    
+print("---------------------------------------------------------------------")
+
+num_circles = 0
+flag = 1
+prev_max_el = 0
+while flag:
+    num_circles += 1
+    max_el = 0
+    for y in range(0, length):
+        for x in range(0, width):
+            if max_el < right_acc[y, x]:
+                max_el = right_acc[y, x]
+                ym = y
+                xm = x
+    
+    print("najveci el: ",max_el)
+    print("y=", ym)
+    print("x=", xm)
+                 
+    for y in range(ym - 5, ym + 6):
+        for x in range(xm - 5, xm + 6 ):
+            if x < width - 1 and y < length -1:
+                right_acc[y, x] = 0
+
+    
+    if prev_max_el * 0.65 > max_el: 
+        flag = 0
+        num_circles -= 1
+        
+    prev_max_el = max_el       
+
+print("Broj krugova na kocki je: ", num_circles)
